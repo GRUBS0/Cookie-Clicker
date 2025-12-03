@@ -13,11 +13,8 @@ struct ContentView: View {
     @State private var running = false// Is the game active?
     @State private var timer: Timer?  = nil // Holds timer so we can stop it
     @State private var showAlert = false    // Shows popup when time ends
-    
     var body: some View {
         VStack(spacing: 20) {         // Vertical layout with spacing
-            
-            // ---- COOKIE IMAGE ----
             Image("cookie")           // Cookie graphic
                 .resizable()
                 .frame(width: 100, height: 100)
