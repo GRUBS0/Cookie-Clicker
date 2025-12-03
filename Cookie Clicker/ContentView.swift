@@ -22,7 +22,26 @@ struct ContentView: View {
                     if running {      // Only count if game is running
                         score += 1    // Increase score
                     }
-                }
-        }
-    }
-}
+            }
+            // Score Display
+                        Text("Score: \(score)")   // Shows score
+                            .font(.largeTitle)
+                            .padding()
+                        
+                        // Time Display
+                        Text("Time: \(timeLeft)") // Shows remaining time
+                            .font(.title)
+                        
+                        Spacer()                  // Pushes buttons to bottom
+                        
+                        // Buttons
+                        HStack {
+                            
+                            Button("Start") {     // Start button begins the game
+                                startGame()
+                            }
+                            .font(.title2)
+                            .padding()
+                            .background(Color.green)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
