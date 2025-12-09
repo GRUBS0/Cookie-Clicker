@@ -2,79 +2,114 @@
 //  ContentView.swift
 //  Cookie Clicker
 //
-//  Created by joseph phillips on 11/20/25.
+//  Created by Joseph Phillips on 11/20/25.
 //
 
-import SwiftUI
+import SwiftUI   // Import SwiftUI framework for UI building
+
 struct ContentView: View {
     
-    @State private var score = 0      // Counts taps
-    @State private var timeLeft = 10  // Countdown timer
-    @State private var running = false// Is the game active?
-    @State private var timer: Timer?  = nil // Holds timer so we can stop it
-    @State private var showAlert = false    // Shows popup when time ends
+    // MARK: - Game state variables
+    @State private var score = 0   // Counts taps
+    @State private var highScore =
+        UserDefaults.standard.integer(forKey: "HighScore") // Loads saved high score
+    @State private var timeLeft = 10        // Countdown timer starts at 10
+    @State private var running = false      // Tracks if game is active
+    @State private var showAlert = false    // Controls "Time's Up!" popup
+    
     var body: some View {
-        VStack(spacing: 20) {         // Vertical layout with spacing
-            Image("cookie")           // Cookie graphic
-                .resizable()
-                .frame(width: 100, height: 100)
-                .onTapGesture {       // When user taps cookie:
-                    if running {      // Only count if game is running
-                        score += 1    // Increase score
-                    }
-                }
-            // Score Display
-            Text("Score: \(score)")   // Shows score
-                .font(.largeTitle)
-                .padding()
+        VStack(spacing: 20) {   // Vertical stack of UI elements with 20 spacing
             
-            // Time Display
-            Text("Time: \(timeLeft)") // Shows remaining time
-                .font(.title)
-            Spacer()                  // Pushes buttons to bottom
-            // Buttons
-            HStack {
-                Button("Start") {     // Start button begins the game
-                    startGame()
+            // COOKIE IMAGE
+            Image("cookie")
+                .resizable()               // Makes image resizable
+                .frame(width: 200, height: 200)  // Sets size
+                .onTapGesture {            // Action when cookie is tapped
+                    cookiePressed()
                 }
-                .font(.title2)
-                .padding()
-                .background(Color.green)
-                .foregroundColor(.white)
-                .cornerRadius(10)
-                Button("Reset") {     // Reset button clears everything
-                    reset()
-                }
-                .font(.title2)
-                .padding()
-                .background(Color.red)
-                .foregroundColor(.white)
-                .cornerRadius(10)
+            
+            // CURRENT SCORE DISPLAY
+            Text("Score: \(score)")
+                .font(.largeTitle)        // Large font for visibility
+            
+            // HIGH SCORE DISPLAY
+            Text("High Score: \(highScore)")
+                .font(.title3)            // Smaller font for secondary info
+            
+            // TIME LEFT DISPLAY
+            Text("Time: \(timeLeft)")
+                .font(.title)             // Medium font for timer
+            
+            Spacer()                     // Pushes content up
+            
+            // RESET BUTTON
+            Button("Reset") {
+                reset()                  // Calls reset function
             }
+            .font(.title2)
+            .padding()
+            .background(Color.red)
+            .foregroundColor(.white)
+            .cornerRadius(10)           // Rounded corners
         }
         .padding()
         
-        // ---- Pop up when time ends
+        // ALERT WHEN TIME ENDS
         .alert("Time's Up!", isPresented: $showAlert) {
-            Button("OK") { reset() }
+            Button("OK") { reset() }     // Reset game when alert dismissed
         } message: {
-            Text("You tapped \(score) times.")
+            Text("You tapped \(score) times.")  // Shows final score
         }
     }
+    
+    // MARK: - Functions
+    
+    // Called when user taps cookie
+    func cookiePressed() {
+        if running {
+            score += 1              // Increase score only while game is active
+        } else {
+            startGame()             // Start game if not already running
+        }
+    }
+    
+    // Starts the game
     func startGame() {
-        reset()               // Always start fresh
-        running = true        // Game is active
+        reset()                     // Reset everything to start fresh
+        running = true              // Set game to active
         
-        // Timer that counts down once per second
-        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+        // SIMPLE TIMER
+        Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
+            timeLeft -= 1           // Count down each second
             
-            timeLeft -= 1     // Decrease timer by 1
-            
-            if timeLeft == 0 {      // When timer hits 0:
-                running = false     // Stop the game
-                timer?.invalidate() // Stop the timer
-                showAlert = true    // Show popup
+            if timeLeft == 0 {
+                timer.invalidate()  // Stop timer when it reaches 0
+                endGame()           // Handle end of game
             }
         }
     }
+    
+    // Ends the game
+    func endGame() {
+        running = false             // Stop game
+        
+        // SAVE HIGH SCORE
+        if score > highScore {
+            highScore = score       // Update high score
+            UserDefaults.standard.set(highScore, forKey: "HighScore") // Save to device
+        }
+        
+        showAlert = true            // Show "Time's Up!" alert
+    }
+    
+    // Resets game to initial state
+    func reset() {
+        score = 0
+        timeLeft = 10
+        running = false
+    }
+}
+
+#Preview {
+    ContentView()
 }
